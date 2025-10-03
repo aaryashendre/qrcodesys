@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - QR Scanner</title>
+  <title>Admin Dashboard - Event</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
     body {
@@ -14,18 +14,18 @@
       color: #333;
     }
 
-    h2 {
+    h1 {
       text-align: center;
-      margin-bottom: 20px;
-      font-size: 24px;
+      margin-bottom: 25px;
+      font-size: 28px;
       color: #222;
     }
 
-    /* Scanner box */
+    /* Scanner Box */
     #reader {
       width: 320px;
-      margin: 0 auto 20px auto;
-      border-radius: 10px;
+      margin: 0 auto 15px auto;
+      border-radius: 12px;
       overflow: hidden;
       box-shadow: 0px 5px 15px rgba(0,0,0,0.15);
     }
@@ -42,51 +42,47 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
-    #switchBtn:hover {
-      background: #0056b3;
-    }
+    #switchBtn:hover { background: #0056b3; }
 
     #result {
       text-align: center;
       font-weight: 500;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
       font-size: 16px;
     }
 
-    /* Table Styling */
+    /* Table */
     .table-container {
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       padding: 20px;
       overflow-x: auto;
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
     }
-
+    .table-container h2 {
+      margin-bottom: 15px;
+      color: #444;
+      font-size: 20px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
     }
-
     thead {
       background: #007bff;
       color: white;
     }
-
     th, td {
       padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid #ddd;
       font-size: 14px;
     }
+    tbody tr:hover { background: #f1f7ff; }
 
-    tbody tr:hover {
-      background: #f1f7ff;
-    }
-
-    /* Floating Button */
+    /* Floating Action Button */
     .fab {
       position: fixed;
       bottom: 25px;
@@ -106,7 +102,6 @@
       box-shadow: 0px 6px 15px rgba(0,0,0,0.2);
       transition: 0.3s;
     }
-
     .fab:hover {
       background: #218838;
       transform: scale(1.1);
@@ -114,14 +109,16 @@
   </style>
 </head>
 <body>
-  <h2>📷 Admin QR Scanner</h2>
+  <h1>🎉 Event Admin Dashboard</h1>
+
+  <!-- QR Scanner -->
   <div id="reader"></div>
   <button id="switchBtn">Switch Camera</button>
   <p id="result">Scan a QR Code...</p>
 
-  <!-- User Data Table -->
+  <!-- All Users -->
   <div class="table-container">
-    <h3>User Data</h3>
+    <h2>📋 Registered Users</h2>
     <table id="userTable">
       <thead>
         <tr>
@@ -134,12 +131,12 @@
         </tr>
       </thead>
       <tbody>
-        <!-- User rows will load dynamically -->
+        <!-- Data filled dynamically -->
       </tbody>
     </table>
   </div>
 
-  <!-- Floating Action Button -->
+  <!-- Floating Refresh Button -->
   <button class="fab" title="Refresh Data" onclick="loadUsers()">⟳</button>
 
   <script>
@@ -147,12 +144,14 @@
     let currentCameraIndex = 0;
     let cameras = [];
 
+    // Start Scanner
     function startScanner(cameraId, fps = 10) {
       document.getElementById("result").innerText = "Scanning...";
       html5QrCode.start(cameraId, { fps: fps, qrbox: 250 }, onScanSuccess)
         .catch(err => console.error("Error starting scanner:", err));
     }
 
+    // On Successful Scan
     function onScanSuccess(decodedText) {
       html5QrCode.stop().then(() => {
         fetch("/verify", {
@@ -163,14 +162,15 @@
         .then(res => res.json())
         .then(data => {
           document.getElementById("result").innerText = data.message;
-          loadUsers(); // refresh table
+          loadUsers(); // Refresh table
           setTimeout(() => {
             startScanner(cameras[currentCameraIndex].id, 10);
-          }, 3500);
+          }, 3000);
         });
       }).catch(err => console.error("Stop error:", err));
     }
 
+    // Switch Camera
     function switchCamera() {
       if (!cameras || cameras.length < 2) return;
       currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
@@ -178,21 +178,18 @@
         startScanner(cameras[currentCameraIndex].id, 10);
       });
     }
-
     document.getElementById("switchBtn").addEventListener("click", switchCamera);
 
+    // Init Scanner
     html5QrCode = new Html5Qrcode("reader");
-
     Html5Qrcode.getCameras().then(camList => {
       if (camList && camList.length) {
         cameras = camList;
         startScanner(cameras[currentCameraIndex].id);
-      } else {
-        console.error("No cameras found");
       }
     }).catch(err => console.error("Camera error:", err));
 
-    // Load user data
+    // Load All Users
     function loadUsers() {
       fetch("/users")
         .then(res => res.json())
@@ -215,7 +212,7 @@
         .catch(err => console.error("Error loading users:", err));
     }
 
-    // Initial load
+    // First load
     loadUsers();
   </script>
 </body>
