@@ -10,10 +10,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // DB connection
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "qr_system"
+  port: 3306,
+  host: "bkqrilaporhnuhssdlog-mysql.services.clever-cloud.com",
+  user: "ugydl8dxpzwl87wx",
+  password: "RxGEKXT0Lv1eNY1PKAkq",
+  database: "bkqrilaporhnuhssdlog"
 });
 
 // Create table if not exists
