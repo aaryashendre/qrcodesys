@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>Admin - QR Scanner</title>
@@ -7,66 +7,65 @@
 <body>
   <h2>Admin QR Scanner</h2>
   <div id="reader" style="width:300px;"></div>
+  <button id="switchBtn">Switch Camera</button>
   <p id="result"></p>
 
   <script>
+    let html5QrCode;
+    let currentCameraIndex = 0;
+    let cameras = [];
+
+    function startScanner(cameraId, fps = 10) {
+      // Hide previous result
+      document.getElementById("result").innerText = "";
+
+      html5QrCode.start(cameraId, { fps: fps, qrbox: 250 }, onScanSuccess)
+        .catch(err => console.error("Error starting scanner:", err));
+    }
+
     function onScanSuccess(decodedText) {
-      fetch("/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: decodedText })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("result").innerText = data.message;
+      // Stop scanning immediately
+      html5QrCode.stop().then(() => {
+        console.log("Camera stopped after scan");
+
+        // Show scan result
+        fetch("/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code: decodedText })
+        })
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById("result").innerText = data.message;
+
+          // Restart scanning after 3.5 seconds
+          setTimeout(() => {
+            startScanner(cameras[currentCameraIndex].id, 1);
+          }, 3500);
+        });
+      }).catch(err => console.error("Stop error:", err));
+    }
+
+    function switchCamera() {
+      if (!cameras || cameras.length < 2) return; // No second camera
+      currentCameraIndex = (currentCameraIndex + 1) % cameras.length;
+      html5QrCode.stop().then(() => {
+        startScanner(cameras[currentCameraIndex].id, 10);
       });
     }
 
-    const html5QrCode = new Html5Qrcode("reader");
-    Html5Qrcode.getCameras().then(cameras => {
-      if (cameras && cameras.length) {
-        html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
+    document.getElementById("switchBtn").addEventListener("click", switchCamera);
+
+    html5QrCode = new Html5Qrcode("reader");
+
+    Html5Qrcode.getCameras().then(camList => {
+      if (camList && camList.length) {
+        cameras = camList;
+        startScanner(cameras[currentCameraIndex].id);
+      } else {
+        console.error("No cameras found");
       }
-    });
+    }).catch(err => console.error("Camera error:", err));
   </script>
-  <script>
-  // let html5QrCode;
-
-  function onScanSuccess(decodedText) {
-    // Stop scanning immediately
-    html5QrCode.stop().then(() => {
-      console.log("Camera stopped after scan");
-
-      // Verify scanned code
-      fetch("/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: decodedText })
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("result").innerText = data.message;
-
-        // Restart scanning after 5 seconds
-        setTimeout(() => {
-          Html5Qrcode.getCameras().then(cameras => {
-            if (cameras && cameras.length) {
-              html5QrCode.start(cameras[0].id, { fps: 1, qrbox: 250 }, onScanSuccess);
-            }
-          });
-        }, 3500);
-      });
-    }).catch(err => console.error("Stop error:", err));
-  }
-
-  html5QrCode = new Html5Qrcode("reader");
-
-  Html5Qrcode.getCameras().then(cameras => {
-    if (cameras && cameras.length) {
-      html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
-    }
-  });
-</script>
-
 </body>
 </html>
