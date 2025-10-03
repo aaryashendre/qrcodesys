@@ -10,7 +10,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // DB connection
 const db = mysql.createConnection({
-  port: 3306,
   host: "bkqrilaporhnuhssdlog-mysql.services.clever-cloud.com",
   user: "ugydl8dxpzwl87wx",
   password: "RxGEKXT0Lv1eNY1PKAkq",
