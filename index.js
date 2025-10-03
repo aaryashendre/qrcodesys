@@ -220,4 +220,12 @@ app.post("/verify", (req, res) => {
   });
 });
 
+// GET /users
+app.get("/users", (req, res) => {
+  db.query("SELECT * FROM users", (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
 app.listen(3000, () => console.log("🚀 Server running at http://localhost:3000"));
