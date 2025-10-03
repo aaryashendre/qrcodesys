@@ -1,12 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - QR Scanner</title>
   <script src="https://unpkg.com/html5-qrcode"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      background: #1a1a1a;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #00ffe0;
+    }
+
+    #scanner-container {
+      position: relative;
+      width: 90%;
+      max-width: 400px;
+      aspect-ratio: 1;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      background: #000;
+    }
+
+    #reader {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      box-sizing: border-box;
+      border: 4px solid rgba(0,255,224,0.8);
+      border-radius: 16px;
+    }
+
+    /* Scanning line animation */
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #00ffe0;
+      animation: scan 2s infinite;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; }
+      50% { top: 96%; }
+      100% { top: 0%; }
+    }
+
+    #switchBtn {
+      padding: 12px 24px;
+      background: #00ffe0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      margin-bottom: 15px;
+    }
+
+    #switchBtn:hover {
+      background: #00d1b2;
+    }
+
+    #result {
+      font-size: 16px;
+      text-align: center;
+      color: #ffdd57;
+      min-height: 24px;
+    }
+
+    @media (max-width: 480px) {
+      #switchBtn {
+        width: 90%;
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
 <body>
   <h2>Admin QR Scanner</h2>
-  <div id="reader" style="width:300px;"></div>
+
+  <div id="scanner-container">
+    <div id="reader"></div>
+    <div class="overlay"></div>
+    <div class="scan-line"></div>
+  </div>
+
   <button id="switchBtn">Switch Camera</button>
   <p id="result"></p>
 
