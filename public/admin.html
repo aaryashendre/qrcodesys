@@ -1,0 +1,72 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - QR Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h2>Admin QR Scanner</h2>
+  <div id="reader" style="width:300px;"></div>
+  <p id="result"></p>
+
+  <script>
+    function onScanSuccess(decodedText) {
+      fetch("/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: decodedText })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("result").innerText = data.message;
+      });
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    Html5Qrcode.getCameras().then(cameras => {
+      if (cameras && cameras.length) {
+        html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
+      }
+    });
+  </script>
+  <script>
+  // let html5QrCode;
+
+  function onScanSuccess(decodedText) {
+    // Stop scanning immediately
+    html5QrCode.stop().then(() => {
+      console.log("Camera stopped after scan");
+
+      // Verify scanned code
+      fetch("/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: decodedText })
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("result").innerText = data.message;
+
+        // Restart scanning after 5 seconds
+        setTimeout(() => {
+          Html5Qrcode.getCameras().then(cameras => {
+            if (cameras && cameras.length) {
+              html5QrCode.start(cameras[0].id, { fps: 1, qrbox: 250 }, onScanSuccess);
+            }
+          });
+        }, 3500);
+      });
+    }).catch(err => console.error("Stop error:", err));
+  }
+
+  html5QrCode = new Html5Qrcode("reader");
+
+  Html5Qrcode.getCameras().then(cameras => {
+    if (cameras && cameras.length) {
+      html5QrCode.start(cameras[0].id, { fps: 10, qrbox: 250 }, onScanSuccess);
+    }
+  });
+</script>
+
+</body>
+</html>
