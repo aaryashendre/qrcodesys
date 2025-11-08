@@ -1,0 +1,24 @@
+# -----------------------------------
+# 🌐 PHONEPE CONFIGURATION
+# -----------------------------------
+
+# Your PhonePe merchant credentials
+MERCHANT_ID=M231FWZBVPESD_2511081526
+SALT_KEY=ZTUyYTVmYjctZmU0MS00MzBlLWI5OTEtN2E5ZWZhNDk2OTE3
+SALT_INDEX=1
+
+# For Production
+PHONEPE_HOST=https://api.phonepe.com/apis/hermes
+
+# For Sandbox/Testing (Uncomment below instead)
+# PHONEPE_HOST=https://api-preprod.phonepe.com/apis/hermes
+
+# Redirect URLs (must match routes in your app)
+REDIRECT_URL=https://qrcodesys.onrender.com/payment/response
+CALLBACK_URL=https://qrcodesys.onrender.com/payment/callback
+
+# -----------------------------------
+# ⚙️ GENERAL SERVER CONFIG
+# -----------------------------------
+PORT=5000
+NODE_ENV=production
